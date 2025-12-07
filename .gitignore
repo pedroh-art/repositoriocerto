@@ -7,4 +7,4 @@ equipe.db
 *.db
 .regras.json.swp
 .DS_Store
-regras.json
+config/regras.json
