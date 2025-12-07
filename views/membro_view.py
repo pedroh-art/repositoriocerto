@@ -39,27 +39,50 @@ def render_membro_view(conn, regras, usuario_logado):
         st.stop()
 
     # ==============================================================================
-    # MEUS SETORES, FUNÇÕES E DIREITOS EXCLUSIVOS
+    # MEUS SETORES, FUNÇÕES, RESPONSABILIDADES E DIREITOS EXCLUSIVOS
     # ==============================================================================
     st.markdown("### 👥 Meus Setores e Funções")
     minhas_atribuicoes = listar_atribuicoes(conn, meu_id)
     if minhas_atribuicoes:
-        from collections import defaultdict
-        funcoes_por_setor = defaultdict(list)
+        # Agrupa por setor
+        atribuicoes_por_setor = defaultdict(list)
         for setor, funcao in minhas_atribuicoes:
-            funcoes_por_setor[setor].append(funcao)
+            atribuicoes_por_setor[setor].append(funcao)
         
-        for setor_nome, funcoes in funcoes_por_setor.items():
+        for setor_nome, funcoes in atribuicoes_por_setor.items():
             st.markdown(f"#### 🏗️ **{setor_nome}**")
-            st.markdown("- **Funções:** " + ", ".join([f"`{f}`" for f in funcoes]))
             
-            # Buscar direitos exclusivos desse setor nas regras
-            direitos_setor = []
+            # Buscar o setor nas regras
+            setor_regras = None
             for s in regras.get("setores", []):
                 if s["nome"] == setor_nome:
-                    direitos_setor = s.get("direitos_exclusivos", [])
+                    setor_regras = s
                     break
             
+            if setor_regras:
+                # Mostrar cada função com suas responsabilidades
+                for funcao in funcoes:
+                    st.markdown(f"##### ⚡ **Função: `{funcao}`**")
+                    
+                    # Buscar responsabilidades dessa função
+                    resp_list = []
+                    for f in setor_regras.get("funcoes", []):
+                        if f["nome"] == funcao:
+                            resp_list = f.get("responsabilidades", [])
+                            break
+                    
+                    if resp_list:
+                        st.markdown("###### 📌 Responsabilidades:")
+                        for r in resp_list:
+                            st.markdown(f"- {r}")
+                    else:
+                        st.info(f"Nenhuma responsabilidade definida para a função '{funcao}'.")
+            
+            else:
+                st.warning(f"Setor '{setor_nome}' não encontrado nas regras.")
+            
+            # Direitos exclusivos do setor (já existia)
+            direitos_setor = setor_regras.get("direitos_exclusivos", []) if setor_regras else []
             if direitos_setor:
                 st.markdown("##### 🔑 Direitos exclusivos deste setor:")
                 for d in direitos_setor:
