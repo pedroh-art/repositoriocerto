@@ -3,13 +3,16 @@ import sqlite3
 import bcrypt
 import os
 
+# Define o caminho do banco: usa /tmp na nuvem, raiz localmente
+DB_PATH = "/tmp/equipe.db" if os.path.exists("/tmp") else "equipe.db"
+
 def init_db():
     """
     Inicializa a conexão com o banco de dados e cria todas as tabelas necessárias.
     Retorna o objeto de conexão.
     """
     try:
-        conn = sqlite3.connect("equipe.db", check_same_thread=False)
+        conn = sqlite3.connect(DB_PATH, check_same_thread=False)
         conn.execute("PRAGMA foreign_keys = ON")
         _create_tables(conn)
         return conn
