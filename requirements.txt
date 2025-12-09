@@ -1,4 +1,3 @@
 streamlit
 pushbullet.py
 bcrypt
-psycopg2-binary
